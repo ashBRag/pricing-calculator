@@ -5,7 +5,9 @@
     "dev": "nest start --watch",
     "build": "nest build  -p tsconfig.json",
     "postbuild": "tsc-alias -p tsconfig.json",
-    "start": "node  dist/src/main"
+    "start": "node  dist/src/main",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@fastify/static": "^8.0.0",
@@ -36,10 +38,14 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
+    "@nestjs/testing": "^11.1.28",
     "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/uuid": "^9.0.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.12",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.0.0"
   },

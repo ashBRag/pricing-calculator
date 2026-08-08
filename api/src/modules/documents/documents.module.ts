@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DocumentsController, ReportsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
+import { DocumentPrintService } from './document-print.service';
 import { CalculationModule } from '../calculation/calculation.module';
 import { PricingDocument, PricingDocumentSchema } from './document.schema';
 
@@ -13,7 +14,7 @@ import { PricingDocument, PricingDocumentSchema } from './document.schema';
     CalculationModule,
   ],
   controllers: [DocumentsController, ReportsController],
-  providers: [DocumentsService],
+  providers: [DocumentsService, DocumentPrintService],
   exports: [DocumentsService],
 })
 export class DocumentsModule {}

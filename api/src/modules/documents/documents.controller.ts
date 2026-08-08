@@ -7,9 +7,12 @@ import {
   Body,
   Param,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { FastifyReply } from 'fastify';
 import { DocumentsService } from './documents.service';
+import { DocumentPrintService } from './document-print.service';
 import { CreateDocumentDto, UpdateDocumentDto } from '../../schemas/document.dto';
 import { ReportQueryDto } from '../../schemas/report-query.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,7 +22,10 @@ import { AuthenticatedUser } from '../auth/jwt-payload.interface';
 @UseGuards(JwtAuthGuard)
 @Controller('documents')
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) {}
+  constructor(
+    private readonly documentsService: DocumentsService,
+    private readonly documentPrintService: DocumentPrintService
+  ) {}
 
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateDocumentDto) {
@@ -53,6 +59,22 @@ export class DocumentsController {
   @Post(':id/finalize')
   finalize(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.documentsService.finalize(user.id, id);
+  }
+
+  @Post(':id/duplicate')
+  duplicate(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.documentsService.duplicate(user.id, id);
+  }
+
+  @Get(':id/print')
+  async print(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Res() reply: FastifyReply
+  ) {
+    const document = await this.documentsService.findOne(user.id, id);
+    const html = this.documentPrintService.render(document);
+    reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
   }
 }
 

@@ -1,14 +1,16 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { PricingDocument } from './document.schema';
 import { CalculationService } from '../calculation/calculation.service';
 import { CreateDocumentDto, UpdateDocumentDto } from '../../schemas/document.dto';
 import { DocumentStatus, ReportSummary } from '../../types';
+import {
+  NotFoundError,
+  DocumentFinalizedError,
+  ValidationError,
+  ConflictError,
+} from '../../errors/app-errors';
 
 @Injectable()
 export class DocumentsService {
@@ -60,7 +62,7 @@ export class DocumentsService {
       .findOne({ _id: id, userId: new Types.ObjectId(userId) })
       .exec();
     if (!document) {
-      throw new NotFoundException('Document not found.');
+      throw new NotFoundError('Document not found.');
     }
     return document;
   }
@@ -72,7 +74,7 @@ export class DocumentsService {
   async update(userId: string, id: string, dto: UpdateDocumentDto) {
     const document = await this.findOwned(userId, id);
     if (document.status === DocumentStatus.FINALIZED) {
-      throw new ConflictException('Finalized documents cannot be modified.');
+      throw new DocumentFinalizedError();
     }
 
     const { lineItems, totals } = this.buildLineItems(dto);
@@ -92,18 +94,62 @@ export class DocumentsService {
   async remove(userId: string, id: string) {
     const document = await this.findOwned(userId, id);
     if (document.status === DocumentStatus.FINALIZED) {
-      throw new ConflictException('Finalized documents cannot be deleted.');
+      throw new DocumentFinalizedError(
+        'Finalized documents cannot be deleted.'
+      );
     }
     await document.deleteOne();
+  }
+
+  /**
+   * Stretch goal: finalize validation. Even though line items were valid
+   * at save time, re-check quantity/price invariants immediately before
+   * locking the document, since this is the last point mutation is possible.
+   */
+  private assertFinalizable(document: PricingDocument) {
+    const invalidLine = document.lineItems.find(
+      (li) => li.quantity <= 0 || li.unitPrice < 0
+    );
+    if (invalidLine) {
+      throw new ValidationError(
+        `Cannot finalize: line item "${invalidLine.description}" has an invalid quantity or price.`
+      );
+    }
   }
 
   async finalize(userId: string, id: string) {
     const document = await this.findOwned(userId, id);
     if (document.status === DocumentStatus.FINALIZED) {
-      throw new ConflictException('Document is already finalized.');
+      throw new ConflictError('Document is already finalized.');
     }
+    this.assertFinalizable(document);
     document.status = DocumentStatus.FINALIZED;
     return document.save();
+  }
+
+  /**
+   * Stretch goal: duplicate a finalized document into a new draft.
+   * Recalculates totals rather than copying stored cents, so the copy
+   * stays correct even if calculation rules change between duplications.
+   */
+  async duplicate(userId: string, id: string) {
+    const source = await this.findOwned(userId, id);
+
+    const dto: CreateDocumentDto = {
+      title: `${source.title} (copy)`,
+      customer: source.customer,
+      issueDate: source.issueDate.toISOString(),
+      lineItems: source.lineItems.map((li) => ({
+        description: li.description,
+        quantity: li.quantity,
+        unitPrice: li.unitPrice,
+        discountPercent: li.discountPercent,
+        fixedDiscount: li.fixedDiscount,
+        taxPercent: li.taxPercent,
+      })),
+    };
+
+    return this.create(userId, dto);
   }
 
   async reportSummary(
