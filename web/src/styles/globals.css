@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+html {
+  font-size: 0.8rem;
+}
+@media (min-width: 640px) {
+  html {
+    font-size: 0.85rem;
+  }
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 0.9rem;
+  }
+}
+@media (min-width: 1024px) {
+  html {
+    font-size: 1rem;
+  }
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  color: var(--foreground);
+  font-family: var(--font-major), monospace;
+}
+
+:root {
+  --mobile-header-height: 3.75rem;
+  --mobile-footer-height: 4rem;
+}

@@ -1,6 +1,6 @@
 # Multi-Rate Pricing Calculator
 
-A full-stack pricing and document management application built as a take-home assignment for a Backend / Full Stack Developer role.
+A full-stack pricing and document management application.
 
 The application allows authenticated users to create pricing documents, add line items, apply discounts and taxes, calculate document totals, finalize documents, and view summary reports.
 
