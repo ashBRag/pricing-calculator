@@ -7,70 +7,65 @@ import {
   Body,
   Param,
   Query,
-  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { FastifyRequest } from 'fastify';
 import { DocumentsService } from './documents.service';
 import { CreateDocumentDto, UpdateDocumentDto } from '../../schemas/document.dto';
 import { ReportQueryDto } from '../../schemas/report-query.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { AuthenticatedUser } from '../auth/jwt-payload.interface';
 
-/**
- * userId currently comes off req.user, populated by the auth guard once
- * authentication is wired in. Never trust a client-supplied userId.
- */
-function userIdFrom(req: FastifyRequest): string {
-  return (req as FastifyRequest & { user?: { id: string } }).user?.id ?? '';
-}
-
+@UseGuards(JwtAuthGuard)
 @Controller('documents')
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Post()
-  create(@Req() req: FastifyRequest, @Body() dto: CreateDocumentDto) {
-    return this.documentsService.create(userIdFrom(req), dto);
+  create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateDocumentDto) {
+    return this.documentsService.create(user.id, dto);
   }
 
   @Get()
-  findAll(@Req() req: FastifyRequest) {
-    return this.documentsService.findAll(userIdFrom(req));
+  findAll(@CurrentUser() user: AuthenticatedUser) {
+    return this.documentsService.findAll(user.id);
   }
 
   @Get(':id')
-  findOne(@Req() req: FastifyRequest, @Param('id') id: string) {
-    return this.documentsService.findOne(userIdFrom(req), id);
+  findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.documentsService.findOne(user.id, id);
   }
 
   @Patch(':id')
   update(
-    @Req() req: FastifyRequest,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateDocumentDto
   ) {
-    return this.documentsService.update(userIdFrom(req), id, dto);
+    return this.documentsService.update(user.id, id, dto);
   }
 
   @Delete(':id')
-  remove(@Req() req: FastifyRequest, @Param('id') id: string) {
-    return this.documentsService.remove(userIdFrom(req), id);
+  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.documentsService.remove(user.id, id);
   }
 
   @Post(':id/finalize')
-  finalize(@Req() req: FastifyRequest, @Param('id') id: string) {
-    return this.documentsService.finalize(userIdFrom(req), id);
+  finalize(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.documentsService.finalize(user.id, id);
   }
 }
 
+@UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Get('summary')
-  summary(@Req() req: FastifyRequest, @Query() query: ReportQueryDto) {
-    return this.documentsService.reportSummary(
-      userIdFrom(req),
-      query.from,
-      query.to
-    );
+  summary(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ReportQueryDto
+  ) {
+    return this.documentsService.reportSummary(user.id, query.from, query.to);
   }
 }
