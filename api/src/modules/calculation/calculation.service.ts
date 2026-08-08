@@ -1,6 +1,7 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateLineItemDto } from '../../schemas/line-item.dto';
 import { LineItemCalculation, DocumentTotals } from '../../types';
+import { ValidationError } from '../../errors/app-errors';
 
 /**
  * Pure calculation module. No DB or HTTP access.
@@ -26,7 +27,7 @@ export class CalculationService {
     } else if (lineItem.fixedDiscount !== undefined) {
       discountAmountCents = this.toCents(lineItem.fixedDiscount);
       if (discountAmountCents > subtotalCents) {
-        throw new BadRequestException(
+        throw new ValidationError(
           'Fixed discount must not exceed the line subtotal.'
         );
       }

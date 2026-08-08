@@ -9,6 +9,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { LoggerService } from "@libs/logger";
+import { AllExceptionsFilter } from "./errors/http-exception.filter";
 dotenv.config();
 
 async function bootstrap() {
@@ -20,6 +21,7 @@ async function bootstrap() {
   app.useLogger(app.get(LoggerService));
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle("Pricing Calculator")
