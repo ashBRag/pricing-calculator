@@ -1,0 +1,43 @@
+{
+  "name": "pricing-calculator-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build  -p tsconfig.json",
+    "postbuild": "tsc-alias -p tsconfig.json",
+    "start": "node  dist/src/main"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/mongoose": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.0.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.0.0",
+    "mongoose": "^8.0.0",
+    "pino": "^8.0.0",
+    "pino-pretty": "^10.0.0",
+    "prom-client": "^15.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0",
+    "swagger-ui-express": "^5.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.0.0"
+  },
+  "_moduleAliases": {
+    "@libs/mongoose": "dist/libs/mongoose/src",
+    "@libs/prometheus": "dist/libs/prometheus/src",
+    "@libs/swagger": "dist/libs/swagger/src",
+    "@libs/logger": "dist/libs/logger/src"
+  }
+}
