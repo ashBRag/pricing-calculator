@@ -1,7 +1,21 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { SignupDto, LoginDto } from '../../schemas/auth.dto';
+import { SignupDto, LoginDto, RefreshTokenDto } from '../../schemas/auth.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { RefreshJwtAuthGuard } from './refresh-jwt-auth.guard';
+import { CurrentUser } from './current-user.decorator';
+import { CurrentRefreshToken } from './current-refresh-token.decorator';
+import { AuthenticatedUser } from './jwt-payload.interface';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -15,5 +29,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(RefreshJwtAuthGuard)
+  refresh(
+    @CurrentRefreshToken() current: { id: string; refreshToken: string },
+    @Body() _dto: RefreshTokenDto
+  ) {
+    return this.authService.refresh(current.id, current.refreshToken);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  logout(@CurrentUser() user: AuthenticatedUser) {
+    return this.authService.logout(user.id);
   }
 }

@@ -10,6 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 import { DocumentsService } from './documents.service';
 import { DocumentPrintService } from './document-print.service';
@@ -19,6 +20,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuthenticatedUser } from '../auth/jwt-payload.interface';
 
+@ApiTags('documents')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('documents')
 export class DocumentsController {
@@ -78,6 +81,8 @@ export class DocumentsController {
   }
 }
 
+@ApiTags('reports')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
