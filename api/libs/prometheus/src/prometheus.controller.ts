@@ -1,5 +1,5 @@
 import { Controller, Get, Res } from '@nestjs/common'
-import { Response } from 'express'
+import { FastifyReply } from 'fastify'
 import { PrometheusService } from './prometheus.service'
 
 @Controller('metrics')
@@ -7,8 +7,8 @@ export class PrometheusController {
   constructor(private readonly svc: PrometheusService) {}
 
   @Get()
-  async metrics(@Res() res: Response) {
-    res.set('Content-Type', this.svc.registry.contentType)
-    res.end(await this.svc.registry.metrics())
+  async metrics(@Res() res: FastifyReply) {
+    res.header('Content-Type', this.svc.registry.contentType)
+    res.send(await this.svc.registry.metrics())
   }
 }

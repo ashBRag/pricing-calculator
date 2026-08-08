@@ -1,16 +1,37 @@
 import "reflect-metadata";
 import * as dotenv from "dotenv";
 import { NestFactory } from "@nestjs/core";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import { ValidationPipe } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { LoggerService } from "@libs/logger";
-import { setupSwagger } from "@libs/swagger";
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+    { bufferLogs: true }
+  );
   app.useLogger(app.get(LoggerService));
   app.enableCors();
-  setupSwagger(app, "Elder Care");
-  await app.listen(process.env.PORT || 3001);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle("Pricing Calculator")
+    .setDescription("Pricing Calculator API docs")
+    .setVersion("1.0")
+    .addBearerAuth()
+    .build();
+  const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup("docs", app, swaggerDoc, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+
+  await app.listen(Number(process.env.PORT) || 3001, "0.0.0.0");
 }
 bootstrap();
