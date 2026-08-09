@@ -1,2 +1,2 @@
-export * from './mongoose.module'
-export * from './base.repository'
+export * from "./mongoose.module";
+export * from "./base.repository";

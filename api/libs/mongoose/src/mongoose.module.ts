@@ -14,6 +14,7 @@ export class MongooseModule {
           }),
         }),
       ],
+      providers: [],
       exports: [NestMongoose],
     };
   }
