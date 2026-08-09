@@ -1,5 +1,5 @@
 services:
-  app:
+  api:
     image: pricing-calculator-api
     build:
       context: ./

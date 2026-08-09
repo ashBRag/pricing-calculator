@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PricingDocument } from './document.schema';
 
 function centsToDisplay(cents: number): string {
@@ -15,7 +15,13 @@ function escapeHtml(value: string): string {
 
 @Injectable()
 export class DocumentPrintService {
+  private readonly logger = new Logger(DocumentPrintService.name);
+
   render(document: PricingDocument): string {
+    this.logger.log(
+      `Rendering print view for document ${document._id} (${document.lineItems.length} line item(s))`
+    );
+
     const rows = document.lineItems
       .map(
         (li) => `

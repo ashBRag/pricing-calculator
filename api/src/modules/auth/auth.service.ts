@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
-import { User } from './user.schema';
-import { SignupDto, LoginDto } from '../../schemas/auth.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { JwtService, JwtSignOptions } from "@nestjs/jwt";
+import { Model } from "mongoose";
+import * as bcrypt from "bcrypt";
+import { User } from "./user.schema";
+import { SignupDto, LoginDto } from "../../schemas/auth.dto";
 import {
   AccessTokenPayload,
   RefreshTokenPayload,
   TokenPair,
-} from './jwt-payload.interface';
-import { ConflictError, AuthenticationError } from '../../errors/app-errors';
+} from "./jwt-payload.interface";
+import { ConflictError, AuthenticationError } from "../../errors/app-errors";
 
 const SALT_ROUNDS = 12;
 const REFRESH_TOKEN_SALT_ROUNDS = 10;
@@ -26,12 +26,12 @@ export class AuthService {
     const payload: AccessTokenPayload = {
       sub: user.id,
       email: user.email,
-      type: 'access',
+      type: "access",
     };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN ??
-        '15m') as JwtSignOptions['expiresIn'],
+        "15m") as JwtSignOptions["expiresIn"],
     });
   }
 
@@ -39,12 +39,12 @@ export class AuthService {
     const payload: RefreshTokenPayload = {
       sub: user.id,
       email: user.email,
-      type: 'refresh',
+      type: "refresh",
     };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ??
-        '7d') as JwtSignOptions['expiresIn'],
+        "7d") as JwtSignOptions["expiresIn"],
     });
   }
 
@@ -71,7 +71,7 @@ export class AuthService {
       .findOne({ email: dto.email.toLowerCase() })
       .exec();
     if (existing) {
-      throw new ConflictError('An account with this email already exists.');
+      throw new ConflictError("An account with this email already exists.");
     }
 
     const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
@@ -88,7 +88,7 @@ export class AuthService {
       .findOne({ email: dto.email.toLowerCase() })
       .exec();
     if (!user) {
-      throw new AuthenticationError('Invalid email or password.');
+      throw new AuthenticationError("Invalid email or password.");
     }
 
     const passwordMatches = await bcrypt.compare(
@@ -96,7 +96,7 @@ export class AuthService {
       user.passwordHash
     );
     if (!passwordMatches) {
-      throw new AuthenticationError('Invalid email or password.');
+      throw new AuthenticationError("Invalid email or password.");
     }
 
     return this.issueTokenPair({ id: user.id, email: user.email });
@@ -111,15 +111,12 @@ export class AuthService {
   async refresh(userId: string, presentedToken: string): Promise<TokenPair> {
     const user = await this.userModel.findById(userId).exec();
     if (!user?.refreshTokenHash) {
-      throw new AuthenticationError('Refresh token is invalid or expired.');
+      throw new AuthenticationError("Refresh token is invalid or expired.");
     }
 
-    const matches = await bcrypt.compare(
-      presentedToken,
-      user.refreshTokenHash
-    );
+    const matches = await bcrypt.compare(presentedToken, user.refreshTokenHash);
     if (!matches) {
-      throw new AuthenticationError('Refresh token is invalid or expired.');
+      throw new AuthenticationError("Refresh token is invalid or expired.");
     }
 
     return this.issueTokenPair({ id: user.id, email: user.email });

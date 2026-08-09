@@ -5,33 +5,33 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { SignupDto, LoginDto, RefreshTokenDto } from '../../schemas/auth.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { RefreshJwtAuthGuard } from './refresh-jwt-auth.guard';
-import { CurrentUser } from './current-user.decorator';
-import { CurrentRefreshToken } from './current-refresh-token.decorator';
-import { AuthenticatedUser } from './jwt-payload.interface';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { AuthService } from "./auth.service";
+import { SignupDto, LoginDto, RefreshTokenDto } from "../../schemas/auth.dto";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { RefreshJwtAuthGuard } from "./guards/refresh-jwt-auth.guard";
+import { CurrentUser } from "./decorators/current-user.decorator";
+import { CurrentRefreshToken } from "./decorators/current-refresh-token.decorator";
+import { AuthenticatedUser } from "./jwt-payload.interface";
 
-@ApiTags('auth')
-@Controller('auth')
+@ApiTags("auth")
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
+  @Post("signup")
   signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }
 
-  @Post('login')
+  @Post("login")
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
-  @Post('refresh')
+  @Post("refresh")
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshJwtAuthGuard)
   refresh(
@@ -41,7 +41,7 @@ export class AuthController {
     return this.authService.refresh(current.id, current.refreshToken);
   }
 
-  @Post('logout')
+  @Post("logout")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

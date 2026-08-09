@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-"use client";
-import React from "react";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <div>Home</div>;
+  redirect("/documents");
 }

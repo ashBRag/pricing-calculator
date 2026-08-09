@@ -1,56 +1,57 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export class ApiError extends Error {
   status: number;
-  constructor(message: string | undefined, status: number) {
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
-export async function fetchApi(
-  endpoint: string,
-  options: {
-    method?: string;
-    headers?: Record<string, string>;
-    body?: any;
-  } = {}
-) {
-  const url = `${process.env.NEXT_PUBLIC_API_URL || ""}/api${endpoint}`;
-  console.log("url", url);
+interface FetchApiOptions {
+  method?: "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
+  body?: unknown;
+}
 
-  try {
-    const requestOptions: RequestInit = {
-      method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    };
+async function request<T>(
+  url: string,
+  options: FetchApiOptions = {}
+): Promise<T> {
+  const requestInit: RequestInit = {
+    method: options.method ?? "GET",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  };
 
-    // Only add body if it exists and method is not GET
-    if (options.body && options.method !== "GET") {
-      requestOptions.body =
-        typeof options.body === "string"
-          ? options.body
-          : JSON.stringify(options.body);
-    }
-
-    const response = await fetch(url, requestOptions);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiError(
-        errorData.error || `HTTP error! status: ${response.status}`,
-        response.status
-      );
-    }
-
-    return await response.json();
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw new ApiError("Network error occurred", 500);
+  if (options.body !== undefined && options.method !== "GET") {
+    requestInit.body = JSON.stringify(options.body);
   }
+
+  const response = await fetch(url, requestInit);
+  const isJson = response.headers
+    .get("Content-Type")
+    ?.includes("application/json");
+  const data = isJson ? await response.json().catch(() => null) : null;
+
+  if (!response.ok) {
+    const message =
+      data?.error?.message ?? `Request failed with status ${response.status}`;
+    throw new ApiError(message, response.status, data?.error?.code);
+  }
+
+  return data as T;
+}
+
+export function fetchApi<T>(
+  endpoint: string,
+  options?: FetchApiOptions
+): Promise<T> {
+  return request<T>(`/api/backend${endpoint}`, options);
+}
+
+export function authApi<T>(
+  endpoint: string,
+  options?: FetchApiOptions
+): Promise<T> {
+  return request<T>(`/api/auth${endpoint}`, options);
 }

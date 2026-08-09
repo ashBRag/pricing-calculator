@@ -11,8 +11,8 @@ const fira = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "App",
-  description: "App",
+  title: "Pricing Calculator",
+  description: "Multi-rate pricing calculator",
 };
 
 export default function RootLayout({

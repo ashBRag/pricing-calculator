@@ -9,21 +9,24 @@ import {
   Query,
   Res,
   UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { FastifyReply } from 'fastify';
-import { DocumentsService } from './documents.service';
-import { DocumentPrintService } from './document-print.service';
-import { CreateDocumentDto, UpdateDocumentDto } from '../../schemas/document.dto';
-import { ReportQueryDto } from '../../schemas/report-query.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuthenticatedUser } from '../auth/jwt-payload.interface';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { FastifyReply } from "fastify";
+import { DocumentsService } from "./documents.service";
+import { DocumentPrintService } from "./document-print.service";
+import {
+  CreateDocumentDto,
+  UpdateDocumentDto,
+} from "../../schemas/document.dto";
+import { ReportQueryDto } from "../../schemas/report-query.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { AuthenticatedUser } from "../auth/jwt-payload.interface";
 
-@ApiTags('documents')
+@ApiTags("documents")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('documents')
+@Controller("documents")
 export class DocumentsController {
   constructor(
     private readonly documentsService: DocumentsService,
@@ -31,7 +34,10 @@ export class DocumentsController {
   ) {}
 
   @Post()
-  create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateDocumentDto) {
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateDocumentDto
+  ) {
     return this.documentsService.create(user.id, dto);
   }
 
@@ -40,55 +46,55 @@ export class DocumentsController {
     return this.documentsService.findAll(user.id);
   }
 
-  @Get(':id')
-  findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  @Get(":id")
+  findOne(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.documentsService.findOne(user.id, id);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   update(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() dto: UpdateDocumentDto
   ) {
     return this.documentsService.update(user.id, id, dto);
   }
 
-  @Delete(':id')
-  remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  @Delete(":id")
+  remove(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.documentsService.remove(user.id, id);
   }
 
-  @Post(':id/finalize')
-  finalize(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  @Post(":id/finalize")
+  finalize(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.documentsService.finalize(user.id, id);
   }
 
-  @Post(':id/duplicate')
-  duplicate(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+  @Post(":id/duplicate")
+  duplicate(@CurrentUser() user: AuthenticatedUser, @Param("id") id: string) {
     return this.documentsService.duplicate(user.id, id);
   }
 
-  @Get(':id/print')
+  @Get(":id/print")
   async print(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Res() reply: FastifyReply
   ) {
     const document = await this.documentsService.findOne(user.id, id);
     const html = this.documentPrintService.render(document);
-    reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
+    reply.header("Content-Type", "text/html; charset=utf-8").send(html);
   }
 }
 
-@ApiTags('reports')
+@ApiTags("reports")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('reports')
+@Controller("reports")
 export class ReportsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Get('summary')
+  @Get("summary")
   summary(
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: ReportQueryDto
