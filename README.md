@@ -90,10 +90,10 @@ pnpm test    # run the Jest test suite
 
 Unit tests cover `CalculationService`, the module responsible for line item and document pricing math (`src/modules/calculation/calculation.service.spec.ts`):
 
-- **Money handling (cents conversion & rounding)** — integer-cent conversion, float-drift avoidance, and rounding of discounts/tax
-- **Line item calculation rules** — subtotal, percentage/fixed discounts, tax on discounted amount, line totals, absent discount/tax defaults, and fixed-discount-exceeds-subtotal rejection
-- **Document totals** — aggregation of subtotal/discount/tax/grand total across line items, including empty line item lists and error propagation
-- **Assignment sample document** — verifies output against the worked example from the spec
+- **Money handling (cents conversion & rounding)** integer-cent conversion, float-drift avoidance, and rounding of discounts/tax
+- **Line item calculation rules** subtotal, percentage/fixed discounts, tax on discounted amount, line totals, absent discount/tax defaults, and fixed-discount-exceeds-subtotal rejection
+- **Document totals** aggregation of subtotal/discount/tax/grand total across line items, including empty line item lists and error propagation
+- **Assignment sample document** verifies output against the worked example from the spec
 
 Run the suite:
 

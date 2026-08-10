@@ -1,32 +1,35 @@
-FROM node:20-alpine as base
+FROM node:20-alpine AS builder
+
 RUN apk add --no-cache g++ make python3 libc6-compat
 RUN npm install -g pnpm
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-EXPOSE 3000
 
-FROM base as builder
 WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
+
 COPY . .
 RUN pnpm run build
 
-FROM base as production
+# Remove development dependencies after building
+RUN pnpm prune --prod
+
+
+FROM node:20-alpine AS production
+
 WORKDIR /app
 
 ENV NODE_ENV=production
-RUN pnpm install --frozen-lockfile --prod
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S nestjs -u 1001
+
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
+
 USER nestjs
 
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+EXPOSE 3000
 
 CMD ["node", "dist/src/main"]
-
-FROM base as dev
-ENV NODE_ENV=development
-RUN pnpm install --frozen-lockfile
-COPY . .
-CMD ["pnpm", "run", "dev"]
