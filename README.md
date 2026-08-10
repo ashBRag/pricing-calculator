@@ -7,7 +7,7 @@ The application allows authenticated users to create pricing documents, add line
 ## Live Demo
 
 - Frontend: `TODO`
-- Backend API: `TODO`
+- Backend API: https://pricing-calculator-pb3o.onrender.com/
 
 ## Tech Stack
 
