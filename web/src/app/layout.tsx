@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fira_Code } from "next/font/google";
 import { Providers } from "@/providers/providers";
+import { BackendPing } from "@/utils/backend-ping";
 import "@/styles/globals.css";
 
 const fira = Fira_Code({
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fira.variable} antialiased`}>
+        <BackendPing />
         <Providers>{children}</Providers>
       </body>
     </html>

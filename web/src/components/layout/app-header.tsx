@@ -36,7 +36,7 @@ export function AppHeader() {
         <Button
           variant="ghost"
           onClick={() => logout.mutate()}
-          disabled={logout.isPending}
+          loading={logout.isPending}
         >
           Log out
         </Button>

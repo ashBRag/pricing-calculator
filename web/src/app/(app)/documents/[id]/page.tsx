@@ -14,6 +14,7 @@ import { DocumentSummary } from "@/components/documents/document-summary";
 import { DocumentForm } from "@/components/documents/document-form";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { formatDate } from "@/lib/utils";
 
 export default function DocumentDetailPage({
@@ -31,7 +32,7 @@ export default function DocumentDetailPage({
   const finalizeDocument = useFinalizeDocument();
   const duplicateDocument = useDuplicateDocument();
 
-  if (isLoading) return <p className="text-sm text-slate-500">Loading...</p>;
+  if (isLoading) return <Spinner label="Loading document..." />;
   if (isError || !document)
     return <p className="text-sm text-red-600">Failed to load document.</p>;
 
@@ -98,7 +99,10 @@ export default function DocumentDetailPage({
               <Button variant="secondary" onClick={() => setIsEditing(true)}>
                 Edit
               </Button>
-              <Button onClick={() => finalizeDocument.mutate(id)}>
+              <Button
+                onClick={() => finalizeDocument.mutate(id)}
+                loading={finalizeDocument.isPending}
+              >
                 Finalize
               </Button>
               <Button
@@ -110,6 +114,7 @@ export default function DocumentDetailPage({
                     });
                   }
                 }}
+                loading={deleteDocument.isPending}
               >
                 Delete
               </Button>
@@ -123,6 +128,7 @@ export default function DocumentDetailPage({
                   onSuccess: (copy) => router.push(`/documents/${copy._id}`),
                 })
               }
+              loading={duplicateDocument.isPending}
             >
               Duplicate as draft
             </Button>

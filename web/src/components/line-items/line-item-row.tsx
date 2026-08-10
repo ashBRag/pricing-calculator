@@ -45,9 +45,12 @@ export function LineItemRow({ value, onChange, onRemove }: LineItemRowProps) {
           min={1}
           step={1}
           placeholder="Qty"
-          value={value.quantity}
+          value={value.quantity === 0 ? "" : value.quantity}
           onChange={(e) =>
-            onChange({ ...value, quantity: Number(e.target.value) })
+            onChange({
+              ...value,
+              quantity: e.target.value === "" ? 0 : Number(e.target.value),
+            })
           }
           required
         />
@@ -58,16 +61,19 @@ export function LineItemRow({ value, onChange, onRemove }: LineItemRowProps) {
           min={0}
           step={0.01}
           placeholder="Unit price"
-          value={value.unitPrice}
+          value={value.unitPrice === 0 ? "" : value.unitPrice}
           onChange={(e) =>
-            onChange({ ...value, unitPrice: Number(e.target.value) })
+            onChange({
+              ...value,
+              unitPrice: e.target.value === "" ? 0 : Number(e.target.value),
+            })
           }
           required
         />
       </div>
-      <div className="col-span-2 flex gap-1">
+      <div className="col-span-3 flex gap-1">
         <select
-          className="rounded-md border border-slate-300 px-2 text-sm"
+          className="w-28 shrink-0 rounded-md border border-slate-300 px-2 text-sm"
           value={mode}
           onChange={(e) => setDiscountMode(e.target.value as DiscountMode)}
         >
@@ -81,9 +87,13 @@ export function LineItemRow({ value, onChange, onRemove }: LineItemRowProps) {
             min={0}
             max={100}
             step={0.01}
-            value={value.discountPercent ?? 0}
+            placeholder="%"
+            value={value.discountPercent === 0 ? "" : value.discountPercent ?? ""}
             onChange={(e) =>
-              onChange({ ...value, discountPercent: Number(e.target.value) })
+              onChange({
+                ...value,
+                discountPercent: e.target.value === "" ? 0 : Number(e.target.value),
+              })
             }
           />
         )}
@@ -92,21 +102,25 @@ export function LineItemRow({ value, onChange, onRemove }: LineItemRowProps) {
             type="number"
             min={0}
             step={0.01}
-            value={value.fixedDiscount ?? 0}
+            placeholder="Amount"
+            value={value.fixedDiscount === 0 ? "" : value.fixedDiscount ?? ""}
             onChange={(e) =>
-              onChange({ ...value, fixedDiscount: Number(e.target.value) })
+              onChange({
+                ...value,
+                fixedDiscount: e.target.value === "" ? 0 : Number(e.target.value),
+              })
             }
           />
         )}
       </div>
-      <div className="col-span-2">
+      <div className="col-span-1">
         <Input
           type="number"
           min={0}
           max={100}
           step={0.01}
           placeholder="Tax %"
-          value={value.taxPercent ?? ""}
+          value={value.taxPercent === undefined ? "" : value.taxPercent}
           onChange={(e) =>
             onChange({
               ...value,

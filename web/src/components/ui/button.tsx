@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 
@@ -11,19 +12,26 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  loading?: boolean;
 }
 
 export function Button({
   variant = "primary",
   className = "",
   disabled,
+  loading = false,
+  children,
   ...props
 }: ButtonProps) {
   return (
     <button
-      disabled={disabled}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${className}`}
       {...props}
-    />
+    >
+      {loading && <Spinner />}
+      {children}
+    </button>
   );
 }

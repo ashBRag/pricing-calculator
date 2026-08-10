@@ -6,6 +6,7 @@ import { formatCents, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function DocumentsPage() {
   const { data: documents, isLoading, isError } = useDocuments();
@@ -19,7 +20,7 @@ export default function DocumentsPage() {
         </Link>
       </div>
 
-      {isLoading && <p className="text-sm text-slate-500">Loading...</p>}
+      {isLoading && <Spinner label="Loading documents..." />}
       {isError && (
         <p className="text-sm text-red-600">Failed to load documents.</p>
       )}

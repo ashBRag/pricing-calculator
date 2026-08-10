@@ -5,6 +5,7 @@ import { useReportSummary } from "@/lib/documents/use-documents";
 import { formatCents } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 
 function firstOfMonth(): string {
   const now = new Date();
@@ -45,7 +46,7 @@ export default function ReportsPage() {
         />
       </Card>
 
-      {isLoading && <p className="text-sm text-slate-500">Loading...</p>}
+      {isLoading && <Spinner label="Loading report..." />}
       {isError && <p className="text-sm text-red-600">Failed to load report.</p>}
 
       {summary && (

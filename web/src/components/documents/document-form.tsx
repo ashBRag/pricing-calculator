@@ -90,8 +90,8 @@ export function DocumentForm({
           <span className="col-span-4">Description</span>
           <span className="col-span-1">Qty</span>
           <span className="col-span-2">Unit price</span>
-          <span className="col-span-2">Discount</span>
-          <span className="col-span-2">Tax %</span>
+          <span className="col-span-3">Discount</span>
+          <span className="col-span-1">Tax %</span>
         </div>
         {lineItems.map((item, index) => (
           <LineItemRow
@@ -118,7 +118,11 @@ export function DocumentForm({
       )}
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting || lineItems.length === 0}>
+        <Button
+          type="submit"
+          disabled={lineItems.length === 0}
+          loading={isSubmitting}
+        >
           {isSubmitting ? "Saving..." : submitLabel}
         </Button>
       </div>

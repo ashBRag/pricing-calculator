@@ -227,6 +227,7 @@ export class DocumentsService {
       {
         $match: {
           userId: new Types.ObjectId(userId),
+          status: DocumentStatus.FINALIZED,
           issueDate: { $gte: new Date(from), $lte: new Date(to) },
         },
       },

@@ -12,9 +12,11 @@ services:
       - "${PORT}:3000"
     environment:
       - PORT=${PORT}
-      - MONGODB_URI=mongodb://mongo:27017/pricing_calculator
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_ACCESS_EXPIRES_IN=${JWT_ACCESS_EXPIRES_IN}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
     depends_on:
       mongo:
         condition: service_healthy
