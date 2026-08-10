@@ -25,7 +25,6 @@ The application allows authenticated users to create pricing documents, add line
 - REST API
 - Passport
 - JWT authentication
-- Zod / request validation
 
 ### Database
 
@@ -35,19 +34,104 @@ The application allows authenticated users to create pricing documents, add line
 ### Testing
 
 - Jest
-- Supertest
-
-### Infrastructure
-
-- Docker
-- SnapDeploy
-- MongoDB Atlas
-- GitHub Actions
 
 ### Observability
 
 - Prometheus-compatible metrics
 - Grafana for local monitoring/dashboarding
+
+---
+
+# Setup
+
+## Prerequisites
+
+- Node.js (v18+)
+- [pnpm](https://pnpm.io/)
+- MongoDB (local instance or a connection URI)
+
+## Backend (`api`)
+
+```bash
+cd api
+pnpm install
+```
+
+Copy the example env file and adjust values as needed:
+
+```bash
+cp .env.example .env
+```
+
+Start the API in watch mode:
+
+```bash
+pnpm dev
+```
+
+The API will be available at `http://localhost:3000` (per `PORT` in `.env`).
+
+Alternatively, run the API and a MongoDB instance together with Docker Compose:
+
+```bash
+cd api
+PORT=3000 JWT_SECRET=your-secret JWT_EXPIRES_IN=7d docker compose up
+```
+
+Other useful commands:
+
+```bash
+pnpm build   # compile to dist/
+pnpm start   # run the compiled build
+pnpm test    # run the Jest test suite
+```
+
+### Tests
+
+Unit tests cover `CalculationService`, the module responsible for line item and document pricing math (`src/modules/calculation/calculation.service.spec.ts`):
+
+- **Money handling (cents conversion & rounding)** — integer-cent conversion, float-drift avoidance, and rounding of discounts/tax
+- **Line item calculation rules** — subtotal, percentage/fixed discounts, tax on discounted amount, line totals, absent discount/tax defaults, and fixed-discount-exceeds-subtotal rejection
+- **Document totals** — aggregation of subtotal/discount/tax/grand total across line items, including empty line item lists and error propagation
+- **Assignment sample document** — verifies output against the worked example from the spec
+
+Run the suite:
+
+```bash
+cd api
+pnpm test
+```
+
+## Frontend (`web`)
+
+```bash
+cd web
+pnpm install
+```
+
+Copy the example env file and adjust values as needed:
+
+```bash
+cp .env.example .env
+```
+
+By default `API_URL` in `web/.env.example` points to `http://localhost:3000`, so either run the backend on that port (`PORT=3000` in `api/.env`) or update `API_URL` here to match wherever the API is running.
+
+Start the dev server:
+
+```bash
+pnpm dev
+```
+
+The app will be available at `http://localhost:3001`.
+
+Other useful commands:
+
+```bash
+pnpm build   # production build
+pnpm start   # run the production build
+pnpm lint    # run ESLint
+```
 
 ---
 

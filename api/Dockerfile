@@ -3,7 +3,7 @@ RUN apk add --no-cache g++ make python3 libc6-compat
 RUN npm install -g pnpm
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-EXPOSE 3001
+EXPOSE 3000
 
 FROM base as builder
 WORKDIR /app

@@ -34,6 +34,6 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true },
   });
 
-  await app.listen(Number(process.env.PORT) || 3001, "0.0.0.0");
+  await app.listen(Number(process.env.PORT) || 3000, "0.0.0.0");
 }
 bootstrap();

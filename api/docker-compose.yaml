@@ -9,7 +9,7 @@ services:
       - .:/app
       - /app/node_modules
     ports:
-      - "${PORT}:3001"
+      - "${PORT}:3000"
     environment:
       - PORT=${PORT}
       - MONGODB_URI=mongodb://mongo:27017/pricing_calculator
